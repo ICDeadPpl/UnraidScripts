@@ -2,6 +2,7 @@
 
 # This script makes backups of all the folders in Unraid's Docker appdata folder.
 # All folders are backed up in separate tar.gz files in the dated destination directory.
+# Backup folders older than
 # It also backs up the USB drive and the libvirt.img file.
 
 source /boot/config/docker.cfg
@@ -9,6 +10,7 @@ source /boot/config/domain.cfg
 BACKUP_DEST_APP="/mnt/user/CommunityApplicationsAppdataBackup"
 BACKUP_DEST_USB="/mnt/user/Community_Applications_USB_Backup"
 BACKUP_DEST_VM="/mnt/user/Community_Applications_VM_XML_Backup"
+BACKUP_DAYS=14
 
 if [ -w  "$DOCKER_APP_CONFIG_PATH" ]; then
     cd "$DOCKER_APP_CONFIG_PATH"
@@ -25,8 +27,8 @@ if [ -w  "$DOCKER_APP_CONFIG_PATH" ]; then
             echo Backing up $d directory.
             tar czf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
          done
-    echo "Deleteing backups older than 14 days."
-    find "$BACKUP_DEST_APP"/* -type d -ctime +10 -exec rm -rf {} \;
+    echo "Deleting backups older than $BACKUP_DAYS days."
+    find "$BACKUP_DEST_APP"/* -type d -ctime +$BACKUP_DAYS -exec rm -rf {} \;
     fi
     echo "Start Docker service."
     /etc/rc.d/rc.docker start
