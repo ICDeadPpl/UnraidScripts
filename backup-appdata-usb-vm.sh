@@ -1,12 +1,17 @@
 #!/bin/bash
 
+# Author: Jan Karjalainen <jan@biffstek.se>
+# Github repository: https://github.com/ICDeadPpl/UnraidScripts
 # This script makes backups of all the folders in Unraid's Docker appdata folder.
 # All folders are backed up in separate tar.gz files in the dated destination directory.
-# Backup folders older than
+# Backup folders older than BACKUP_DAYS are deleted.
 # It also backs up the USB drive and the libvirt.img file.
 
+# Do not edit.
 source /boot/config/docker.cfg
 source /boot/config/domain.cfg
+
+# Edit these 4 lines to your own liking.
 BACKUP_DEST_APP="/mnt/user/CommunityApplicationsAppdataBackup"
 BACKUP_DEST_USB="/mnt/user/Community_Applications_USB_Backup"
 BACKUP_DEST_VM="/mnt/user/Community_Applications_VM_XML_Backup"
