@@ -37,7 +37,7 @@ if [ -w  "$BACKUP_DEST_APP" ]; then
             done
             # Backup directory into tar.gz file.
             echo Backing up $d directory.
-            tar czf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
+            tar --zstd -cf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
         done
     echo "Deleting backups older than $BACKUP_DAYS days."
     find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
