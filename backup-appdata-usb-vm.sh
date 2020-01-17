@@ -26,19 +26,19 @@ echo "Stopping Docker service."
 if [ -w  "$BACKUP_DEST_APP" ]; then
 	mkdir -p "$BACKUP_DEST_APP/$(date +%Y-%m-%d)"
 	ls | while read d
-	 do
-		# Test for skipped directories.
-		for i in ${SKIP_DIRECTORY//,/ }
-		do
-			if [ "$d" == "$i" ]; then
-				echo Skipping directory "$i".
-				continue 2
-			fi
-		done
-        # Backup directory into tar.gz file.
-		echo Backing up $d directory.
-		tar czf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
-	 done
+	    do
+            # Test for skipped directories.
+            for i in ${SKIP_DIRECTORY//,/ }
+            do
+                if [ "$d" == "$i" ]; then
+                    echo Skipping directory "$i".
+                    continue 2
+                fi
+            done
+            # Backup directory into tar.gz file.
+            echo Backing up $d directory.
+            tar czf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
+        done
     echo "Deleting backups older than $BACKUP_DAYS days."
     find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
 fi
