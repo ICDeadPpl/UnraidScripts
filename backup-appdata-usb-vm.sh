@@ -17,6 +17,7 @@ BACKUP_DEST_USB="/mnt/user/Community_Applications_USB_Backup" # Flash drive dest
 BACKUP_DEST_VM="/mnt/user/Community_Applications_VM_Backup" # libvirt.img destination.
 BACKUP_DAYS=14 # Delete backups older than this amount of days.
 SKIP_DIRECTORY=temp,plex # Skip these appdata directories. No spaces in directory names!
+COMPRESSION=zstd # gzip or zstd
 
 cd "$DOCKER_APP_CONFIG_PATH"
 echo "Stopping Docker service."
@@ -36,8 +37,15 @@ if [ -w  "$BACKUP_DEST_APP" ]; then
                 fi
             done
             # Backup directory into tar.gz file.
-            echo Backing up $d directory.
-            tar --zstd -cf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$d"
+            if [ "$COMPRESSION" == "gzip" ]
+            then
+                echo Backing up $d directory using gzip compression.
+                tar czf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
+            elif [ "$COMPRESSION" == "zstd" ]
+            then
+                echo Backing up $d directory using zstd compression.
+                tar --zstd -cf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$d"
+            fi
         done
     echo "Deleting backups older than $BACKUP_DAYS days."
     find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
