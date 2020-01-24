@@ -32,22 +32,22 @@ if [ -w  "$BACKUP_DEST_APP" ]; then
             for i in ${SKIP_DIRECTORY//,/ }
             do
                 if [ "$d" == "$i" ]; then
-                    echo Skipping directory "$i".
+                    echo "Skipping directory \"${i}.\""
                     continue 2
                 fi
             done
             # Backup directory into tar.gz file.
             if [ "$COMPRESSION" == "gzip" ]
             then
-                echo Backing up $d directory using gzip compression.
+                echo Backing up directory \"${d}\".
                 tar czf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
             elif [ "$COMPRESSION" == "zstd" ]
             then
-                echo Backing up $d directory using zstd compression.
+                echo "Backing up directory \"${d}\".
                 tar --zstd -cf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$d"
             fi
         done
-    echo "Deleting backups older than $BACKUP_DAYS days."
+    echo "Deleting backups older than ${BACKUP_DAYS} days."
     find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
 fi
 
