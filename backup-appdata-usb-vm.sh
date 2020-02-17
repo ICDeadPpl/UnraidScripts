@@ -19,12 +19,23 @@ BACKUP_DAYS=14 # Delete backups older than this amount of days.
 SKIP_DIRECTORY=temp,plex # Skip these appdata directories. No spaces in directory names!
 COMPRESSION=zstd # gzip or zstd
 
-cd "$DOCKER_APP_CONFIG_PATH"
-echo "Stopping Docker service."
-/etc/rc.d/rc.docker stop
-
-# Check that backup destination is mounted & writable.
-if [ -w  "$BACKUP_DEST_APP" ]; then
+# Check that backup destinations are mounted & writable.
+if [ ! -w  "$BACKUP_DEST_APP" ]; then
+	echo "WARNING: Backup destination \"${BACKUP_DEST_APP}\" doesn't exist!"
+	echo "Backup script stopped."
+	exit
+elif [ ! -w  "$BACKUP_DEST_USB" ]; then
+	echo "WARNING: Backup destination \"${BACKUP_DEST_USB}\" doesn't exist!"
+	echo "Backup script stopped."
+	exit
+elif [ ! -w  "$BACKUP_DEST_VM" ]; then
+	echo "WARNING: Backup destination \"${BACKUP_DEST_VM}\" doesn't exist!"
+	echo "Backup script stopped."
+	exit	
+else
+	cd "$DOCKER_APP_CONFIG_PATH"
+	echo "Stopping Docker service."
+	/etc/rc.d/rc.docker stop
 	mkdir -p "$BACKUP_DEST_APP/$(date +%Y-%m-%d)"
 	ls | while read d
 	    do
@@ -49,15 +60,15 @@ if [ -w  "$BACKUP_DEST_APP" ]; then
         done
     echo "Deleting backups older than ${BACKUP_DAYS} days."
     find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
+
+	echo "Start Docker service."
+	/etc/rc.d/rc.docker start
+
+	echo "Backing up USB drive."
+	rsync -a /boot/ "$BACKUP_DEST_USB/"
+
+	echo "Backing up libvirt.img file."
+	/usr/bin/rsync -a "$IMAGE_FILE" "$BACKUP_DEST_VM/"
+
+	echo "All backup jobs done."
 fi
-
-echo "Start Docker service."
-/etc/rc.d/rc.docker start
-
-echo "Backing up USB drive."
-rsync -a /boot/ "$BACKUP_DEST_USB/"
-
-echo "Backing up libvirt.img file."
-/usr/bin/rsync -a "$IMAGE_FILE" "$BACKUP_DEST_VM/"
-
-echo "All backup jobs done."
