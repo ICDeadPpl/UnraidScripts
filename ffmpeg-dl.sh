@@ -3,7 +3,7 @@
 # Author: Jan Karjalainen <jan@biffstek.se>
 # Github repository: https://github.com/ICDeadPpl/UnraidScripts
 # This script downloads a static build of ffmpeg and installs it.
-# Call this script from your 'go' script on rout Unraid.
+# Call this script from your 'go' script on your Unraid.
 
 cd /tmp
 wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz
