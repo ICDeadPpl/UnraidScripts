@@ -15,6 +15,8 @@ source /boot/config/domain.cfg
 BACKUP_DEST_APP="/mnt/user/Community_Applications_Appdata_Backup" # Appdata backup destination.
 BACKUP_DEST_USB="/mnt/user/Community_Applications_USB_Backup" # Flash drive destination.
 BACKUP_DEST_VM="/mnt/user/Community_Applications_VM_Backup" # libvirt.img destination.
+BACKUP_DEST_DOCKER_TEMPLATES="/mnt/user/Community_Applications_Docker_Backup" # Docker templates backup location.
+DOCKER_TEMPLATES_DIR="/boot/config/plugins/dockerMan" # Docker templates directory location.
 BACKUP_DAYS=14 # Delete backups older than this amount of days.
 SKIP_DIRECTORY=temp,plex # Skip these appdata directories. No spaces in directory names!
 COMPRESSION=zstd # gzip or zstd
@@ -32,6 +34,10 @@ elif [ ! -w  "$BACKUP_DEST_VM" ]; then
 	echo "WARNING: Backup destination \"${BACKUP_DEST_VM}\" doesn't exist!"
 	echo "Backup script stopped."
 	exit	
+elif [ ! -w  "$BACKUP_DEST_DOCKER_TEMPLATES" ]; then
+	echo "WARNING: Backup destination \"${BACKUP_DEST_DOCKER_TEMPLATES}\" doesn't exist!"
+	echo "Backup script stopped."
+	exit
 else
 	cd "$DOCKER_APP_CONFIG_PATH"
 	echo "Stopping Docker service."
@@ -47,17 +53,28 @@ else
                     continue 2
                 fi
             done
-            # Backup directory into tar.gz file.
-            if [ "$COMPRESSION" == "gzip" ]
+            
+            if [ "$COMPRESSION" == "gzip" ] # Backup directory into tar.gz file.
             then
                 echo "Backing up directory \"${d}\"."
                 tar czf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$d"
-            elif [ "$COMPRESSION" == "zstd" ]
+            elif [ "$COMPRESSION" == "zstd" ] # Backup directory into tar.zst file.
             then
                 echo "Backing up directory \"${d}\"."
                 tar --zstd -cf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$d"
             fi
         done
+     
+    if [ "$COMPRESSION" == "gzip" ] # Backup directory into tar.gz file.
+        then
+            echo echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
+            tar czf "$BACKUP_DEST_DOCKER_TEMPLATES/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$DOCKER_TEMPLATES_DIR"
+        elif [ "$COMPRESSION" == "zstd" ] # Backup directory into tar.zst file.
+        then
+            echo echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
+            tar --zstd -cf "$BACKUP_DEST_DOCKER_TEMPLATES/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$DOCKER_TEMPLATES_DIR"
+    fi
+    
     echo "Deleting backups older than ${BACKUP_DAYS} days."
     find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
 
