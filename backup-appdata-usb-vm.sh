@@ -67,11 +67,11 @@ else
      
     if [ "$COMPRESSION" == "gzip" ] # Backup directory into tar.gz file.
         then
-            echo echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
+            echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
             tar czf "$BACKUP_DEST_DOCKER_TEMPLATES/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.gz" "$DOCKER_TEMPLATES_DIR"
         elif [ "$COMPRESSION" == "zstd" ] # Backup directory into tar.zst file.
         then
-            echo echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
+            echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
             tar --zstd -cf "$BACKUP_DEST_DOCKER_TEMPLATES/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$DOCKER_TEMPLATES_DIR"
     fi
     
