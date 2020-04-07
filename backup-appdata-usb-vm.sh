@@ -65,7 +65,7 @@ else
             fi
         done
      
-    mkdir -p "$DOCKER_TEMPLATES_DIR/$(date +%Y-%m-%d)"
+    mkdir -p "$BACKUP_DEST_DOCKER_TEMPLATES/$(date +%Y-%m-%d)"
     if [ "$COMPRESSION" == "gzip" ] # Backup directory into tar.gz file.
         then
             echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
