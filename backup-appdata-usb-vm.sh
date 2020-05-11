@@ -18,7 +18,7 @@ BACKUP_DEST_VM="/mnt/user/Community_Applications_VM_Backup" # libvirt.img destin
 BACKUP_DEST_DOCKER_TEMPLATES="/mnt/user/Community_Applications_Docker_Backup" # Docker templates backup location.
 DOCKER_TEMPLATES_DIR="/boot/config/plugins/dockerMan" # Docker templates directory location.
 BACKUP_DAYS=14 # Delete backups older than this amount of days.
-SKIP_DIRECTORY=temp,plex # Skip these appdata directories. No spaces in directory names, use double quotes: "dirname"!
+SKIP_DIRECTORY=temp,plex # Skip these appdata directories. No spaces in directory names!
 COMPRESSION=zstd # gzip or zstd
 
 # Check that backup destinations are mounted & writable.
