@@ -33,12 +33,20 @@ elif [ ! -w  "$BACKUP_DEST_USB" ]; then
 elif [ ! -w  "$BACKUP_DEST_VM" ]; then
 	echo "WARNING: Backup destination \"${BACKUP_DEST_VM}\" doesn't exist!"
 	echo "Backup script stopped."
-	exit	
+	exit
 elif [ ! -w  "$BACKUP_DEST_DOCKER_TEMPLATES" ]; then
 	echo "WARNING: Backup destination \"${BACKUP_DEST_DOCKER_TEMPLATES}\" doesn't exist!"
 	echo "Backup script stopped."
 	exit
 else
+	# Check if parity check is running and pause it if the plugin Parity Check Tuning is installed.
+	if [ -f "/usr/local/bin/parity.check" ]; then
+            if parity.check status | grep 'Parity Check' > /dev/null; then
+                echo "Parity check active. Pausing now."
+                parity.check pause
+	    fi
+        fi
+
 	cd "$DOCKER_APP_CONFIG_PATH"
 	echo "Stopping Docker service."
 	/etc/rc.d/rc.docker stop
@@ -53,7 +61,7 @@ else
                     continue 2
                 fi
             done
-            
+
             if [ "$COMPRESSION" == "gzip" ] # Backup directory into tar.gz file.
             then
                 echo "Backing up directory \"${d}\"."
@@ -64,7 +72,7 @@ else
                 tar --zstd -cf "$BACKUP_DEST_APP/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$d"
             fi
         done
-     
+
     mkdir -p "$BACKUP_DEST_DOCKER_TEMPLATES/$(date +%Y-%m-%d)"
     if [ "$COMPRESSION" == "gzip" ] # Backup directory into tar.gz file.
         then
@@ -75,7 +83,7 @@ else
             echo "Backing up directory \"${DOCKER_TEMPLATES_DIR}\"."
             tar --zstd -cf "$BACKUP_DEST_DOCKER_TEMPLATES/$(date +%Y-%m-%d)/$d-$(date +%Y-%m-%d).tar.zst" "$DOCKER_TEMPLATES_DIR"
     fi
-    
+
     echo "Deleting backups older than ${BACKUP_DAYS} days."
     find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
 
@@ -87,6 +95,14 @@ else
 
 	echo "Backing up libvirt.img file."
 	/usr/bin/rsync -a "$IMAGE_FILE" "$BACKUP_DEST_VM/"
+
+	# Check if parity check is paused and restart it if the plugin Parity Check Tuning is installed.
+	if [ -f "/usr/local/bin/parity.check" ]; then
+            if parity.check status | grep 'PAUSED' > /dev/null; then
+                echo "Parity check paused. Resuming now."
+                parity.check resume
+            fi
+        fi
 
 	echo "All backup jobs done."
 fi
