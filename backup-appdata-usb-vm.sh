@@ -17,7 +17,7 @@ BACKUP_DEST_USB="/mnt/user/Community_Applications_USB_Backup" # Flash drive dest
 BACKUP_DEST_VM="/mnt/user/Community_Applications_VM_Backup" # libvirt.img destination.
 BACKUP_DEST_DOCKER_TEMPLATES="/mnt/user/Community_Applications_Docker_Backup" # Docker templates backup location.
 DOCKER_TEMPLATES_DIR="/boot/config/plugins/dockerMan" # Docker templates directory location.
-BACKUP_DAYS=14 # Delete backups older than this amount of days.
+BACKUP_DAYS=10 # Delete backups older than this amount of days.
 SKIP_DIRECTORY=temp,plex # Skip these appdata directories. No spaces in directory names!
 COMPRESSION=zstd # gzip or zstd
 
@@ -85,7 +85,8 @@ else
     fi
 
     echo "Deleting backups older than ${BACKUP_DAYS} days."
-    find "$BACKUP_DEST_APP"/* -type d -ctime +"$BACKUP_DAYS" | xargs rm -rf
+    find "$BACKUP_DEST_APP"/* -type d -mtime +"$BACKUP_DAYS" | xargs rm -rf
+	find "$BACKUP_DEST_DOCKER_TEMPLATES"/* -type d -mtime +"$BACKUP_DAYS" | xargs rm -rf
 
 	echo "Start Docker service."
 	/etc/rc.d/rc.docker start
