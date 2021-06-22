@@ -1,0 +1,1 @@
+Checks if Plex is activated for transcoding and stops the trex-mining container. <br>Starts the trex-mining container after Plex transcoding has stopped.
