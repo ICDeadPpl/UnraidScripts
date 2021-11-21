@@ -104,6 +104,8 @@ else
 
 	echo "Backing up USB drive."
 	rsync -a /boot/ "$BACKUP_DEST_USB/"
+    echo "Make USB backup directories browsable."
+    find "$BACKUP_DEST_USB" -type d -exec chmod 777 {} \;
 
 	echo "Backing up libvirt.img file."
 	/usr/bin/rsync -a "$IMAGE_FILE" "$BACKUP_DEST_VM/"
