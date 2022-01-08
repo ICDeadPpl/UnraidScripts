@@ -1,27 +1,26 @@
 #!/bin/bash
 
-if [ ! -f /usr/bin/gpustat ]; then
-    echo "gpustat not found, installing."
-    /usr/bin/pip3 install gpustat
-fi
-
-sleep 300
-
 # Check if nvidia-smi daemon is running and start it if not.
 if [[ `ps ax | grep nvidia-smi | grep daemon` == "" ]]; then
     /usr/bin/nvidia-smi daemon
 fi
 
+sleep 300 # Wait until array is started and all dockers are started.
+
+TREX=`docker container ls -q --filter name=trex*`
+
 while true; do
-    if [[ `/usr/bin/gpustat -c --no-color | grep Plex` == "" ]]; then
+    if [[ `/usr/bin/nvidia-smi | grep Plex` == "" ]]; then
         # If Plex is not transcoding, start the trex-miner container.
-        if [[ `docker ps | grep trex-miner | grep trex-miner` == "" ]]; then
-            docker start trex-miner
+        if [[ `docker ps | grep $TREX` == "" ]]; then
+            echo "No Plex, starting Trex."
+            docker start $TREX
         fi
     else
         # If Plex is transcoding, stop the trex-miner container.
-        if [[ `docker ps | grep trex-miner | grep trex-miner` != "" ]]; then
-            docker stop trex-miner
+        if [[ `docker ps | grep $TREX` != "" ]]; then
+            echo "Plex running, stopping Trex."
+            docker stop $TREX
         fi
     fi
     sleep 1
