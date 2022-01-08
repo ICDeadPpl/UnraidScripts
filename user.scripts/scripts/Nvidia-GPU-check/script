@@ -5,19 +5,19 @@ if [[ `ps ax | grep nvidia-smi | grep daemon` == "" ]]; then
     /usr/bin/nvidia-smi daemon
 fi
 
-sleep 300 # Wait until array is started and all dockers are started.
+sleep 300 # Wait until array is online and all dockers are started.
 
 TREX=`docker container ls -q --filter name=trex*`
 
 while true; do
     if [[ `/usr/bin/nvidia-smi | grep Plex` == "" ]]; then
-        # If Plex is not transcoding, start the trex-miner container.
+        # If Plex is not transcoding, start the trex-miner container if it is not running.
         if [[ `docker ps | grep $TREX` == "" ]]; then
             echo "No Plex, starting Trex."
             docker start $TREX
         fi
     else
-        # If Plex is transcoding, stop the trex-miner container.
+        # If Plex is transcoding, stop the trex-miner container if it is running.
         if [[ `docker ps | grep $TREX` != "" ]]; then
             echo "Plex running, stopping Trex."
             docker stop $TREX
