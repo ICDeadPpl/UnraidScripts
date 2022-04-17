@@ -24,6 +24,12 @@ SKIP_DIRECTORY=temp # Skip these appdata directories (comma separated: temp,plex
 COMPRESSION=gzip # gzip or zstd
 DELETE_BACKUPS=yes # Delete old backups. Set to "no" if you want to keep all backups.
 BACKUPS_TO_KEEP=3 # Number of backups to keep. The oldest ones are deleted.
+EXECUTE_COMMAND_AFTER_BACKUP=yes # Run optional command after backup.
+
+execute_command () {
+    # Put anything you want to run after backup here.
+    ssh osmc@192.168.1.234 sudo /sbin/reboot
+}
 
 # Check that backup destinations are mounted & writable.
 if [ ! -w  "$BACKUP_DEST_APP" ]; then
@@ -109,7 +115,13 @@ else
 
 	echo "Backing up libvirt.img file."
 	/usr/bin/rsync -a "$IMAGE_FILE" "$BACKUP_DEST_VM/"
-    
+
+    if [ "$EXECUTE_COMMAND_AFTER_BACKUP" == "yes" ]
+        then
+            echo "Executing post-backup command."
+            execute_command
+    fi
+
     # Check if parity check is paused and restart it if the plugin Parity Check Tuning is installed.
 	if [ -f "/usr/local/bin/parity.check" ]; then
         if parity.check status | grep 'PAUSED' > /dev/null; then
